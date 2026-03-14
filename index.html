@@ -71,7 +71,7 @@
                 const csv = await res.text();
                 const rows = csv.split('\n').slice(1).map(r => r.split('","').map(c => c.replace(/"/g, '')));
                 render(rows);
-            } catch (e) { console.error("Error"); }
+            } catch (e) { console.error("Error cargando Sheets"); }
         }
 
         function createCard(row, i, label) {
@@ -90,14 +90,14 @@
             </div>`;
 
         function render(rows) {
-            // Actuales (Filas 0-6)
+            // Pantalla 1 y 2: Filas 1-7 del Excel
             let g1 = ""; for(let i=0; i<4; i++) g1 += createCard(rows[i] || [], i, i+1);
             document.getElementById('g1').innerHTML = g1;
 
             let g2 = ""; for(let i=4; i<7; i++) g2 += createCard(rows[i] || [], i, i+1);
             document.getElementById('g2').innerHTML = g2 + avisoHTML;
 
-            // Próximos (Asumiendo que empiezan en fila 8 del Excel)
+            // Pantalla 3 y 4: Filas 8-14 del Excel
             const p = rows.slice(7); 
             let g3 = ""; for(let i=0; i<4; i++) g3 += createCard(p[i] || [], i, i+1);
             document.getElementById('g3').innerHTML = g3;
