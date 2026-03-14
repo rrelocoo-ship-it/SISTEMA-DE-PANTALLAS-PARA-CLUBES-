@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SISTEMA WPE - CONTROL OFICIAL</title>
+    <style>
+        :root {
+            --fondo: #000000;
+            --primario: #ccff00; /* Amarillo Neón Akari/WPE */
+            --texto: #ffffff;
+            --alerta: #ff0000;
+            --gris: #1a1a1a;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: var(--fondo);
+            color: var(--texto);
+            font-family: 'Arial Black', sans-serif;
+            text-transform: uppercase;
+            overflow: hidden;
+        }
+
+        /* Pantalla de Bloqueo por falta de pago o URL incorrecta */
+        #bloqueo { 
+            display: none; 
+            padding: 80px 20px; 
+            background: #000; 
+            color: var(--alerta); 
+            font-size: 28px; 
+            text-align: center;
+            border: 10px solid var(--alerta);
+            height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 4px solid var(--primario);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .logo { font-size: 42px; color: var(--primario); }
+        
+        .grid-canchas {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .cancha-card {
+            background: var(--gris);
+            border: 2px solid #333;
+            border-radius: 12px;
+            padding: 15px;
+        }
+
+        .cancha-numero { font-size: 20px; color: var(--primario); }
+        .partido-info { font-size: 24px; height: 60px; margin: 10px 0; color: #eee; }
+        .timer { font-size: 36px; text-align: right; color: var(--primario); font-family: monospace; }
+
+        .footer-banner {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: var(--primario);
+            color: black;
+            text-align: center;
+            padding: 5px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="bloqueo">
+        <h1 id="bloqueo-titulo">⚠️ ACCESO RESTRINGIDO</h1>
+        <p id="bloqueo-mensaje">Esta copia de software no está autorizada o el abono mensual ha caducado.<br><br>Contacte a: <b>SOPORTE WPE / AKARI</b></p>
+    </div>
+
+    <div id="app-principal">
+        <div class="header">
+            <div class="logo">CIRCUITO WPE</div>
+            <div id="reloj-central" style="font-size: 30px;">00:00:00</div>
+        </div>
+
+        <div id="contenedor-canchas" class="grid-canchas">
+            </div>
+
+        <div class="footer-banner">
+            SISTEMA DE GESTIÓN OFICIAL - GRAN WILLY
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // 1. CONFIGURACIÓN DE LICENCIA (TU SEGURO)
+        // ==========================================
+        const CONFIG = {
+            urlValida: "rrelocoo-ship-it.github.io",
+            vencimiento: "2026-04-15", // Fecha de bloqueo automático
+            cliente: "GRAN WILLY",
+            sheetID: "1hgPIXVfeNvvNfY6h204cJFqeTxGm66dohcjmNRvhef8",
+            gid: "232783951"
+        };
+
+        (function validarLicencia() {
+            const hoy = new Date();
+            const fechaVence = new Date(CONFIG.vencimiento);
+            const host = window.location.hostname;
+            
+            const esUrlCorrecta = host === CONFIG.urlValida || host === "localhost" || host === "127.0.0.1";
+            const estaAlDia = hoy <= fechaVence;
+
+            if (!esUrlCorrecta || !estaAlDia) {
+                document.getElementById('app-principal').style.display = 'none';
+                document.getElementById('bloqueo').style.display = 'block';
+                
+                if (!estaAlDia) {
+                    document.getElementById('bloqueo-titulo').innerText = "⚠️ ABONO VENCIDO";
+                    document.getElementById('bloqueo-mensaje').innerHTML = `La licencia para <b>${CONFIG.cliente}</b> venció el ${CONFIG.vencimiento}.<br>Por favor, regularice el pago para activar el servicio.`;
+                }
+            }
+        })();
+
+        // ==========================================
+        // 2. CONEXIÓN CON TU GOOGLE SHEETS
+        // ==========================================
+        const URL_CSV = `https://docs.google.com/spreadsheets/d/${CONFIG.sheetID}/gviz/tq?tqx=out:csv&gid=${CONFIG.gid}`;
+
+        async function actualizarTablero() {
+            try {
+                const res = await fetch(URL_CSV);
+                const data = await res.text();
+                const filas = data.split('\n').slice(1);
+                render(filas);
+            } catch (err) {
+                console.error("Error leyendo el Excel:", err);
+            }
+        }
+
+        function render(filas) {
+            const contenedor = document.getElementById('contenedor-canchas');
+            contenedor.innerHTML = '';
+            
+            // Mostramos las canchas (ajustado a las 7 que manejás)
+            filas.slice(0, 7).forEach((fila, i) => {
+                const col = fila.split('","').map(c => c.replace(/"/g, ''));
+                
+                const canchaNombre = col[0] || `CANCHA ${i+1}`;
+                const jugadores = col[1] || "DISPONIBLE";
+                const tiempo = col[3] || "--:--";
+
+                contenedor.innerHTML += `
+                    <div class="cancha-card">
+                        <div class="cancha-numero">${canchaNombre}</div>
+                        <div class="partido-info">${jugadores}</div>
+                        <div class="timer">${tiempo}</div>
+                    </div>
+                `;
+            });
+        }
+
+        setInterval(() => {
+            document.getElementById('reloj-central').innerText = new Date().toLocaleTimeString();
+        }, 1000);
+
+        setInterval(actualizarTablero, 15000); // Actualiza cada 15 seg
+        actualizarTablero();
+
+    </script>
+</body>
+</html>
+</html>
