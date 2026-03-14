@@ -2,51 +2,41 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>MATCHVIEW - ROTACIÓN TOTAL</title>
+    <title>MATCHVIEW - CONTROL TOTAL EXCEL</title>
     <style>
         :root { --primario: #ccff00; --fondo: #000; --gris: #111; --acento: #333; }
         body { margin: 0; background: var(--fondo); color: #fff; font-family: 'Arial Black', sans-serif; text-transform: uppercase; overflow: hidden; }
-        
         .slide { display: none; height: 100vh; padding: 25px; box-sizing: border-box; flex-direction: column; }
         .active { display: flex; }
-
         .header { display: flex; justify-content: space-between; border-bottom: 5px solid var(--primario); padding-bottom: 10px; margin-bottom: 15px; }
         .logo { font-size: 38px; color: var(--primario); }
-        .tipo-turno { font-size: 28px; background: var(--acento); padding: 5px 15px; border-radius: 8px; }
-        .reloj { font-size: 38px; }
-
-        .grid-canchas { display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr); gap: 15px; flex-grow: 1; }
-        
+        .etiqueta { font-size: 28px; background: var(--acento); padding: 5px 15px; border-radius: 8px; }
+        .grid { display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr); gap: 15px; flex-grow: 1; }
         .card { background: var(--gris); border-radius: 20px; padding: 25px; border: 2px solid var(--acento); display: flex; flex-direction: column; justify-content: center; }
-        .n-cancha { font-size: 22px; color: var(--primario); margin-bottom: 10px; }
-        .jugadores { font-size: 32px; line-height: 1.1; min-height: 80px; display: flex; align-items: center; }
-        .horario { font-size: 22px; color: var(--primario); text-align: right; margin-top: 10px; }
-
-        .aviso { background: var(--primario); color: #000; border: none; text-align: center; animation: pulse 2s infinite; }
-        .aviso .n-cancha { color: #000; font-weight: bold; border-bottom: 2px solid #000; }
-        .aviso-texto { font-size: 30px; font-weight: 900; }
-
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.8; } 100% { opacity: 1; } }
+        .n { font-size: 22px; color: var(--primario); margin-bottom: 10px; }
+        .jug { font-size: 32px; line-height: 1.1; min-height: 80px; display: flex; align-items: center; }
+        .cat { font-size: 22px; color: var(--primario); text-align: right; margin-top: 10px; }
+        .aviso { background: var(--primario); color: #000; border: none; text-align: center; }
+        .aviso-txt { font-size: 30px; font-weight: 900; }
     </style>
 </head>
 <body>
-
     <div id="app">
-        <div class="slide active" id="s1">
-            <div class="header"><div class="logo">MATCHVIEW</div><div class="tipo-turno">EN JUEGO</div><div class="reloj" id="t1">00:00</div></div>
-            <div class="grid-canchas" id="g1"></div>
+        <div class="slide active">
+            <div class="header"><div class="logo">MATCHVIEW</div><div class="etiqueta">EN JUEGO</div><div id="reloj1" style="font-size:38px"></div></div>
+            <div class="grid" id="g1"></div>
         </div>
-        <div class="slide" id="s2">
-            <div class="header"><div class="logo">MATCHVIEW</div><div class="tipo-turno">EN JUEGO</div><div class="reloj" id="t2">00:00</div></div>
-            <div class="grid-canchas" id="g2"></div>
+        <div class="slide">
+            <div class="header"><div class="logo">MATCHVIEW</div><div class="etiqueta">EN JUEGO</div><div id="reloj2" style="font-size:38px"></div></div>
+            <div class="grid" id="g2"></div>
         </div>
-        <div class="slide" id="s3">
-            <div class="header"><div class="logo">MATCHVIEW</div><div class="tipo-turno" style="color:cyan">PRÓXIMOS</div><div class="reloj" id="t3">00:00</div></div>
-            <div class="grid-canchas" id="g3"></div>
+        <div class="slide">
+            <div class="header"><div class="logo">MATCHVIEW</div><div class="etiqueta" style="color:cyan">PRÓXIMOS</div><div id="reloj3" style="font-size:38px"></div></div>
+            <div class="grid" id="g3"></div>
         </div>
-        <div class="slide" id="s4">
-            <div class="header"><div class="logo">MATCHVIEW</div><div class="tipo-turno" style="color:cyan">PRÓXIMOS</div><div class="reloj" id="t4">00:00</div></div>
-            <div class="grid-canchas" id="g4"></div>
+        <div class="slide">
+            <div class="header"><div class="logo">MATCHVIEW</div><div class="etiqueta" style="color:cyan">PRÓXIMOS</div><div id="reloj4" style="font-size:38px"></div></div>
+            <div class="grid" id="g4"></div>
         </div>
     </div>
 
@@ -56,62 +46,37 @@
             gid: "232783951"
         };
 
-        let current = 0;
-        function rotate() {
+        let index = 0;
+        setInterval(() => {
             const slides = document.querySelectorAll('.slide');
             slides.forEach(s => s.classList.remove('active'));
-            current = (current + 1) % 4;
-            slides[current].classList.add('active');
-        }
-        setInterval(rotate, 10000);
+            index = (index + 1) % 4;
+            slides[index].classList.add('active');
+        }, 10000);
 
         async function load() {
-            try {
-                const res = await fetch(`https://docs.google.com/spreadsheets/d/${CONFIG.sheetID}/gviz/tq?tqx=out:csv&gid=${CONFIG.gid}`);
-                const csv = await res.text();
-                const rows = csv.split('\n').slice(1).map(r => r.split('","').map(c => c.replace(/"/g, '')));
-                render(rows);
-            } catch (e) { console.error("Error cargando Sheets"); }
-        }
+            const res = await fetch(`https://docs.google.com/spreadsheets/d/${CONFIG.sheetID}/gviz/tq?tqx=out:csv&gid=${CONFIG.gid}`);
+            const text = await res.text();
+            const rows = text.split('\n').slice(1).map(r => r.split('","').map(c => c.replace(/"/g, '')));
+            
+            const card = (r, n) => `<div class="card"><div class="n">CANCHA ${n}</div><div class="jug">${r[1] || '---'}</div><div class="cat">${r[3] || ''}</div></div>`;
+            const aviso = `<div class="card aviso"><div class="n" style="color:#000">IMPORTANTE</div><div class="aviso-txt">FAVOR DE PRESENTARSE EN LA MESA DEL STAFF</div></div>`;
 
-        function createCard(row, i, label) {
-            return `
-                <div class="card">
-                    <div class="n-cancha">CANCHA ${label}</div>
-                    <div class="jugadores">${row[1] || '---'}</div>
-                    <div class="horario">${row[3] || ''}</div>
-                </div>`;
-        }
-
-        const avisoHTML = `
-            <div class="card aviso">
-                <div class="n-cancha">IMPORTANTE</div>
-                <div class="aviso-texto">FAVOR DE PRESENTARSE EN LA MESA DEL STAFF</div>
-            </div>`;
-
-        function render(rows) {
-            // Pantalla 1 y 2: Filas 1-7 del Excel
-            let g1 = ""; for(let i=0; i<4; i++) g1 += createCard(rows[i] || [], i, i+1);
-            document.getElementById('g1').innerHTML = g1;
-
-            let g2 = ""; for(let i=4; i<7; i++) g2 += createCard(rows[i] || [], i, i+1);
-            document.getElementById('g2').innerHTML = g2 + avisoHTML;
-
-            // Pantalla 3 y 4: Filas 8-14 del Excel
-            const p = rows.slice(7); 
-            let g3 = ""; for(let i=0; i<4; i++) g3 += createCard(p[i] || [], i, i+1);
-            document.getElementById('g3').innerHTML = g3;
-
-            let g4 = ""; for(let i=4; i<7; i++) g4 += createCard(p[i] || [], i, i+1);
-            document.getElementById('g4').innerHTML = g4 + avisoHTML;
+            // Renderizar grids
+            document.getElementById('g1').innerHTML = card(rows[0]||[], 1) + card(rows[1]||[], 2) + card(rows[2]||[], 3) + card(rows[3]||[], 4);
+            document.getElementById('g2').innerHTML = card(rows[4]||[], 5) + card(rows[5]||[], 6) + card(rows[6]||[], 7) + aviso;
+            
+            const p = rows.slice(7); // Filas de próximos
+            document.getElementById('g3').innerHTML = card(p[0]||[], 1) + card(p[1]||[], 2) + card(p[2]||[], 3) + card(p[3]||[], 4);
+            document.getElementById('g4').innerHTML = card(p[4]||[], 5) + card(p[5]||[], 6) + card(p[6]||[], 7) + aviso;
         }
 
         setInterval(() => {
-            const now = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            for(let i=1; i<=4; i++) document.getElementById('t'+i).innerText = now;
+            const time = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+            [1,2,3,4].forEach(i => document.getElementById('reloj'+i).innerText = time);
         }, 1000);
 
-        setInterval(load, 30000);
+        setInterval(load, 20000);
         load();
     </script>
 </body>
