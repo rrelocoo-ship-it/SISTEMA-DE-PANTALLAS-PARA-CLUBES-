@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WPE MATCHVIEW ULTRA - GRAN WILLY</title>
     <style>
         :root { 
@@ -14,30 +15,34 @@
             --amarillo-estado: #ffcc00;
             --azul-estado: #0066ff;
         }
-        body { margin: 0; background: var(--fondo); color: #fff; font-family: 'Arial Black', sans-serif; text-transform: uppercase; overflow: hidden; }
+        body { margin: 0; background: var(--fondo); color: #fff; font-family: 'Arial Black', sans-serif; text-transform: uppercase; overflow: hidden; height: 100vh; }
+        
+        #app { height: 100%; }
         .slide { display: none; height: 100vh; padding: 15px; box-sizing: border-box; flex-direction: column; }
         .active { display: flex; }
+        
         .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 5px solid var(--primario); padding-bottom: 10px; margin-bottom: 10px; }
         .logo-wpe { font-size: 35px; color: var(--primario); font-weight: 900; }
         .reloj { font-size: 40px; }
+        
         .grid { display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr); gap: 15px; flex-grow: 1; }
         
-        .card { background: var(--gris); border-radius: 20px; padding: 15px; border: 2px solid var(--acento); display: flex; flex-direction: column; position: relative; align-items: center; justify-content: center; text-align: center; }
+        .card { background: var(--gris); border-radius: 20px; padding: 15px; border: 2px solid var(--acento); display: flex; flex-direction: column; position: relative; align-items: center; justify-content: center; text-align: center; overflow: hidden; }
         
         .cancha-n { position: absolute; top: 8px; left: 15px; font-size: 24px; color: var(--primario); font-weight: 900; }
         .instancia { position: absolute; top: 8px; right: 15px; font-size: 22px; color: #666; }
         
-        /* JUGADORES EN TAMAÑO MÁXIMO */
-        .pareja-cont { width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 120px; }
-        .jugador { font-size: 65px; line-height: 0.82; font-weight: 900; letter-spacing: -3px; width: 100%; }
-        .llego { color: var(--primario); text-shadow: 0 0 15px rgba(204, 255, 0, 0.4); } 
+        /* JUGADORES GIGANTES */
+        .pareja-cont { width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 110px; }
+        .jugador { font-size: 60px; line-height: 0.85; font-weight: 900; letter-spacing: -3px; width: 100%; white-space: nowrap; }
+        .llego { color: var(--primario); text-shadow: 0 0 10px rgba(204, 255, 0, 0.4); } 
         .no-llego { color: #fff; } 
         
-        .vs { font-size: 20px; color: var(--primario); margin: 5px 0; font-weight: bold; background: #000; padding: 2px 10px; border-radius: 5px; z-index: 2; }
+        .vs { font-size: 18px; color: var(--primario); margin: 5px 0; font-weight: bold; background: #000; padding: 2px 12px; border-radius: 5px; z-index: 2; border: 1px solid var(--acento); }
         
         .footer-card { width: 100%; margin-top: auto; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--acento); padding-top: 8px; }
-        .cat { font-size: 26px; color: var(--primario); font-weight: 900; }
-        .estado-txt { font-size: 22px; font-weight: bold; padding: 5px 20px; border-radius: 8px; min-width: 150px; }
+        .cat { font-size: 24px; color: var(--primario); font-weight: 900; }
+        .estado-txt { font-size: 20px; font-weight: bold; padding: 5px 15px; border-radius: 8px; min-width: 140px; }
 
         .est-enjuego { background-color: var(--verde-estado); color: #000; }
         .est-finalizado { background-color: var(--amarillo-estado); color: #000; }
@@ -47,37 +52,40 @@
         .llamando { animation: flash 1s infinite; border: 5px solid var(--rojo) !important; }
         @keyframes flash { 0%, 100% { background: var(--gris); } 50% { background: #600; } }
 
-        /* AVISO GENERAL ULTRA VISTOSO */
+        /* AVISO GENERAL */
         .aviso-card { background: #1a1a1a; border: 4px solid var(--primario); }
-        .aviso-header { font-size: 35px; color: var(--primario); font-weight: 900; text-decoration: underline; margin-bottom: 15px; }
-        .aviso-body { font-size: 55px; line-height: 1; color: #fff; font-weight: 900; letter-spacing: -2px; }
+        .aviso-header { font-size: 32px; color: var(--primario); font-weight: 900; text-decoration: underline; margin-bottom: 15px; }
+        .aviso-body { font-size: 50px; line-height: 1; color: #fff; font-weight: 900; letter-spacing: -2px; }
     </style>
 </head>
 <body>
     <div id="app">
-        <div class="slide active"><div class="header" id="h1"></div><div class="grid" id="g1"></div></div>
-        <div class="slide"><div class="header" id="h2"></div><div class="grid" id="g2"></div></div>
-        <div class="slide"><div class="header" id="h3"></div><div class="grid" id="g3"></div></div>
-        <div class="slide"><div class="header" id="h4"></div><div class="grid" id="g4"></div></div>
+        <div class="slide active"><div class="header"></div><div class="grid" id="g1"></div></div>
+        <div class="slide"><div class="header"></div><div class="grid" id="g2"></div></div>
+        <div class="slide"><div class="header"></div><div class="grid" id="g3"></div></div>
+        <div class="slide"><div class="header"></div><div class="grid" id="g4"></div></div>
     </div>
 
     <script>
         const ID = "1hgPIXVfeNvvNfY6h204cJFqeTxGm66dohcjmNRvhef8";
         const GID = "232783951"; 
         const hHTML = `<div class="logo-wpe">CIRCUITO WPE - GRAN WILLY</div><div class="reloj">00:00</div>`;
+        
         document.querySelectorAll('.header').forEach(h => h.innerHTML = hHTML);
 
         let cur = 0;
-        setInterval(() => {
+        function rotate() {
             const ss = document.querySelectorAll('.slide');
             ss.forEach(s => s.classList.remove('active'));
             cur = (cur + 1) % 4;
-            ss[cur].classList.add('active');
-        }, 10000);
+            if(ss[cur]) ss[cur].classList.add('active');
+        }
+        setInterval(rotate, 10000);
 
         async function load() {
             try {
-                const res = await fetch(`https://docs.google.com/spreadsheets/d/${ID}/gviz/tq?tqx=out:csv&gid=${GID}&t=${Date.now()}`);
+                const url = `https://docs.google.com/spreadsheets/d/${ID}/gviz/tq?tqx=out:csv&gid=${GID}&t=${Date.now()}`;
+                const res = await fetch(url);
                 const text = await res.text();
                 const rows = text.split('\n').slice(1).map(r => r.split('","').map(c => c.replace(/"/g, '')));
 
@@ -87,62 +95,67 @@
                     const estRaw = (r[5] || "").toUpperCase().trim();
 
                     if (index === 7) { 
-                        let claseAlertaAviso = estRaw.includes("LLAMANDO") ? "llamando" : "";
+                        let alertClass = estRaw.includes("LLAMANDO") ? "llamando" : "";
                         return `
-                            <div class="card aviso-card ${claseAlertaAviso}">
+                            <div class="card aviso-card ${alertClass}">
                                 <div class="aviso-header">${r[1] || "AVISO GENERAL"}</div>
                                 <div class="aviso-body">${r[2] || "MESA DE CONTROL"}</div>
-                                <div style="position:absolute; bottom:10px; right:20px; font-size:16px; color:#444">WPE STAFF</div>
                             </div>`;
                     }
 
-                    const cancha = r[0];    
-                    const p1_nombres = (r[1] || "").split('/'); 
-                    const p2_nombres = (r[2] || "").split('/'); 
-                    const cat = r[3];       
-                    const ins = r[4];       
+                    const cancha = r[0] || "?";
+                    const p1 = (r[1] || "").split('/');
+                    const p2 = (r[2] || "").split('/');
+                    const cat = r[3] || "";
+                    const ins = r[4] || "";
                     
-                    const j1_p1_llego = r[7] ? 'llego' : 'no-llego'; 
-                    const j2_p1_llego = r[8] ? 'llego' : 'no-llego'; 
-                    const j1_p2_llego = r[9] ? 'llego' : 'no-llego'; 
-                    const j2_p2_llego = r[10] ? 'llego' : 'no-llego'; 
+                    const j1p1 = r[7] ? 'llego' : 'no-llego'; 
+                    const j2p1 = r[8] ? 'llego' : 'no-llego'; 
+                    const j1p2 = r[9] ? 'llego' : 'no-llego'; 
+                    const j2p2 = r[10] ? 'llego' : 'no-llego'; 
 
-                    let claseEstado = "est-normal";
-                    let claseAlerta = "";
-                    if (estRaw.includes("LLAMANDO")) { claseAlerta = "llamando"; }
-                    else if (estRaw.includes("EN JUEGO")) { claseEstado = "est-enjuego"; }
-                    else if (estRaw.includes("FINALIZADO")) { claseEstado = "est-finalizado"; }
-                    else if (estRaw.includes("PROXIMO") || estRaw.includes("PRÓXIMO")) { claseEstado = "est-proximo"; }
+                    let stClass = "est-normal";
+                    let alClass = "";
+                    if (estRaw.includes("LLAMANDO")) alClass = "llamando";
+                    else if (estRaw.includes("EN JUEGO")) stClass = "est-enjuego";
+                    else if (estRaw.includes("FINALIZADO")) stClass = "est-finalizado";
+                    else if (estRaw.includes("PROXIMO") || estRaw.includes("PRÓXIMO")) stClass = "est-proximo";
 
                     return `
-                        <div class="card ${claseAlerta}">
+                        <div class="card ${alClass}">
                             <div class="cancha-n">C${cancha}</div>
                             <div class="instancia">${ins}</div>
-                            
-                            <div class="pareja-cont" style="margin-top:15px">
-                                <div class="jugador ${j1_p1_llego}">${p1_nombres[0] || ""}</div>
-                                <div class="jugador ${j2_p1_llego}">${p1_nombres[1] || ""}</div>
+                            <div class="pareja-cont" style="margin-top:20px">
+                                <div class="jugador ${j1p1}">${p1[0] || ""}</div>
+                                <div class="jugador ${j2p1}">${p1[1] || ""}</div>
                             </div>
-                            
                             <div class="vs">VS</div>
-                            
                             <div class="pareja-cont">
-                                <div class="jugador ${j1_p2_llego}">${p2_nombres[0] || ""}</div>
-                                <div class="jugador ${j2_p2_llego}">${p2_nombres[1] || ""}</div>
+                                <div class="jugador ${j1p2}">${p2[0] || ""}</div>
+                                <div class="jugador ${j2p2}">${p2[1] || ""}</div>
                             </div>
-
                             <div class="footer-card">
                                 <div class="cat">${cat}</div>
-                                <div class="estado-txt ${claseEstado}">${estRaw}</div>
+                                <div class="estado-txt ${stClass}">${estRaw}</div>
                             </div>
                         </div>`;
                 };
 
-                document.getElementById('g1').innerHTML = crearCard(rows[0],0)+crearCard(rows[1],1)+crearCard(rows[2],2)+crearCard(rows[3],3);
-                document.getElementById('g2').innerHTML = crearCard(rows[4],4)+crearCard(rows[5],5)+crearCard(rows[6],6)+crearCard(rows[7],7);
-                document.getElementById('g3').innerHTML = crearCard(rows[8],8)+crearCard(rows[9],9)+crearCard(rows[10],10)+crearCard(rows[11],11);
-                document.getElementById('g4').innerHTML = crearCard(rows[12],12)+crearCard(rows[13],13)+crearCard(rows[14],14)+crearCard(rows[15],15);
+                document.getElementById('g1').innerHTML = [0,1,2,3].map(i => crearCard(rows[i], i)).join('');
+                document.getElementById('g2').innerHTML = [4,5,6,7].map(i => crearCard(rows[i], i)).join('');
+                document.getElementById('g3').innerHTML = [8,9,10,11].map(i => crearCard(rows[i], i)).join('');
+                document.getElementById('g4').innerHTML = [12,13,14,15].map(i => crearCard(rows[i], i)).join('');
 
-            } catch(
+            } catch(e) { console.error("Error cargando datos"); }
+        }
+
+        setInterval(() => {
+            const t = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+            document.querySelectorAll('.reloj').forEach(r => r.innerText = t);
+        }, 1000);
+        
+        setInterval(load, 15000);
+        load();
+    </script>
 </body>
 </html>
