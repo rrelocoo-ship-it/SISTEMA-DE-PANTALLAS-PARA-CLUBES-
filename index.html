@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WPE - GLASSM</title>
+    <title>WPE - TV SYSTEM</title>
     <style>
         :root { 
             --primario: #ccff00; 
@@ -25,16 +25,15 @@
         .active { display: flex; }
         
         .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; margin-bottom: 10px; }
-        .logo-wpe { font-size: 30px; color: var(--primario); font-weight: 900; }
+        .logo-wpe { font-size: 35px; color: var(--primario); font-weight: 900; }
         .reloj { font-size: 35px; }
         
         .grid { display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr); gap: 20px; flex-grow: 1; }
         
-        /* ESTILO OPCIÓN 3 - GLASSMORPHISM */
         .card { 
-            background: rgba(255, 255, 255, 0.05) !important; 
-            border-radius: 25px !important; 
-            border: 1px solid rgba(255,255,255,0.15) !important; 
+            background: rgba(255, 255, 255, 0.05); 
+            border-radius: 25px; 
+            border: 1px solid rgba(255,255,255,0.15); 
             backdrop-filter: blur(15px); 
             -webkit-backdrop-filter: blur(15px);
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
@@ -45,7 +44,7 @@
         .instancia { position: absolute; top: 12px; right: 18px; font-size: 20px; color: rgba(255,255,255,0.2); z-index: 10; }
         
         .pareja-cont { width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; margin: -5px 0; }
-        .jugador { font-size: 85px; line-height: 0.78; font-weight: 900; letter-spacing: -5px; width: 100%; white-space: nowrap; }
+        .jugador { font-size: 80px; line-height: 0.78; font-weight: 900; letter-spacing: -4px; width: 100%; white-space: nowrap; }
         .llego { color: var(--primario); text-shadow: 0 0 15px rgba(204,255,0,0.4); } 
         .no-llego { color: #fff; } 
         
@@ -70,6 +69,7 @@
 </head>
 <body>
     <div id="app">
+        <!-- Generamos las 4 pantallas (slides) -->
         <div class="slide active"><div class="header"></div><div class="grid" id="g1"></div></div>
         <div class="slide"><div class="header"></div><div class="grid" id="g2"></div></div>
         <div class="slide"><div class="header"></div><div class="grid" id="g3"></div></div>
@@ -79,10 +79,11 @@
     <script>
         const ID = "1hgPIXVfeNvvNfY6h204cJFqeTxGm66dohcjmNRvhef8";
         const GID = "232783951"; 
-        const hHTML = `<div class="logo-wpe">CIRCUITO WPE - GRAN WILLY</div><div class="reloj">00:00</div>`;
+        const hHTML = `<div class="logo-wpe">CIRCUITO WPE</div><div class="reloj">00:00</div>`;
         document.querySelectorAll('.header').forEach(h => h.innerHTML = hHTML);
 
         let cur = 0;
+        // Cambio de slide cada 10 segundos
         setInterval(() => {
             const ss = document.querySelectorAll('.slide');
             ss.forEach(s => s.classList.remove('active'));
@@ -95,26 +96,38 @@
                 const url = `https://docs.google.com/spreadsheets/d/${ID}/gviz/tq?tqx=out:csv&gid=${GID}&t=${Date.now()}`;
                 const res = await fetch(url);
                 const text = await res.text();
+                // Separamos por filas y quitamos comillas
                 const rows = text.split('\n').slice(1).map(r => r.split('","').map(c => c.replace(/"/g, '')));
 
                 const crearCard = (r, index) => {
-                    if (!r || !r[1] || r[1].trim() === "") return `<div class="card" style="opacity:0.05"></div>`;
+                    // Si no hay datos en la fila
+                    if (!r || !r[1] || r[1].trim() === "") return `<div class="card" style="opacity:0.1"></div>`;
+                    
                     const estRaw = (r[5] || "").toUpperCase().trim();
 
-                    if (index === 7) { 
+                    // POSICIONES DE AVISO: 8 (índice 7) y 16 (índice 15)
+                    if (index === 7 || index === 15) { 
                         let alertClass = estRaw.includes("LLAMANDO") ? "llamando" : "";
-                        return `<div class="card aviso-card ${alertClass}"><div class="aviso-header">${r[1] || "AVISO GENERAL"}</div><div class="aviso-body">${r[2] || "MESA DE CONTROL"}</div></div>`;
+                        return `
+                            <div class="card aviso-card ${alertClass}">
+                                <div class="aviso-header">${r[1] || "AVISO GENERAL"}</div>
+                                <div class="aviso-body">${r[2] || "MESA DE CONTROL"}</div>
+                            </div>`;
                     }
 
+                    // DATOS DE CANCHA
                     const cancha = r[0] || "?";
                     const p1 = (r[1] || "").split('/');
                     const p2 = (r[2] || "").split('/');
                     const cat = r[3] || "";
                     const ins = r[4] || "";
-                    const j1p1 = r[7] ? 'llego' : 'no-llego'; 
-                    const j2p1 = r[8] ? 'llego' : 'no-llego'; 
-                    const j1p2 = r[9] ? 'llego' : 'no-llego'; 
-                    const j2p2 = r[10] ? 'llego' : 'no-llego'; 
+                    
+                    // Verificación de llegada (TRUE en Excel)
+                    const checkLlego = (val) => (val || "").toUpperCase().includes("TRUE");
+                    const j1p1 = checkLlego(r[7]) ? 'llego' : 'no-llego'; 
+                    const j2p1 = checkLlego(r[8]) ? 'llego' : 'no-llego'; 
+                    const j1p2 = checkLlego(r[9]) ? 'llego' : 'no-llego'; 
+                    const j2p2 = checkLlego(r[10]) ? 'llego' : 'no-llego'; 
 
                     let stClass = "est-normal";
                     let alClass = "";
@@ -123,23 +136,49 @@
                     else if (estRaw.includes("FINALIZADO")) stClass = "est-finalizado";
                     else if (estRaw.includes("PROXIMO") || estRaw.includes("PRÓXIMO")) stClass = "est-proximo";
 
-                    return `<div class="card ${alClass}"><div class="cancha-n">C${cancha}</div><div class="instancia">${ins}</div><div class="pareja-cont"><div class="jugador ${j1p1}">${p1[0] || ""}</div><div class="jugador ${j2p1}">${p1[1] || ""}</div></div><div class="vs">VS</div><div class="pareja-cont"><div class="jugador ${j1p2}">${p2[0] || ""}</div><div class="jugador ${j2p2}">${p2[1] || ""}</div></div><div class="footer-card"><div class="cat">${cat}</div><div class="estado-txt ${stClass}">${estRaw}</div></div></div>`;
+                    return `
+                        <div class="card ${alClass}">
+                            <div class="cancha-n">C${cancha}</div>
+                            <div class="instancia">${ins}</div>
+                            <div class="pareja-cont">
+                                <div class="jugador ${j1p1}">${p1[0] || ""}</div>
+                                <div class="jugador ${j2p1}">${p1[1] || ""}</div>
+                            </div>
+                            <div class="vs">VS</div>
+                            <div class="pareja-cont">
+                                <div class="jugador ${j1p2}">${p2[0] || ""}</div>
+                                <div class="jugador ${j2p2}">${p2[1] || ""}</div>
+                            </div>
+                            <div class="footer-card">
+                                <div class="cat">${cat}</div>
+                                <div class="estado-txt ${stClass}">${estRaw}</div>
+                            </div>
+                        </div>`;
                 };
 
+                // REPARTO DE 16 FILAS EN 4 GRIDS
                 for(let i=0; i<4; i++){
-                    const start = i*4;
+                    const start = i * 4;
                     const grid = document.getElementById(`g${i+1}`);
-                    if(grid) grid.innerHTML = [0,1,2,3].map(j => crearCard(rows[start+j], start+j)).join('');
+                    if(grid) {
+                        grid.innerHTML = [0,1,2,3].map(j => {
+                            const globalIndex = start + j;
+                            return crearCard(rows[globalIndex], globalIndex);
+                        }).join('');
+                    }
                 }
-            } catch(e) { console.error("Update Error"); }
+            } catch(e) { console.error("Error de actualización"); }
         }
 
+        // Reloj
         setInterval(() => {
             const t = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
             document.querySelectorAll('.reloj').forEach(r => r.innerText = t);
         }, 1000);
-        setInterval(load, 15000);
+
+        // Carga inicial y cada 15 segundos
         load();
+        setInterval(load, 15000);
     </script>
 </body>
 </html>
