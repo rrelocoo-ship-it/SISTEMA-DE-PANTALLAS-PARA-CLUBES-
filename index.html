@@ -4,7 +4,16 @@
     <meta charset="UTF-8">
     <title>MATCHVIEW PRO - CIRCUITO WPE</title>
     <style>
-        :root { --primario: #ccff00; --fondo: #000; --gris: #111; --acento: #333; --rojo: #ff0000; }
+        :root { 
+            --primario: #ccff00; 
+            --fondo: #000; 
+            --gris: #111; 
+            --acento: #333; 
+            --rojo: #ff0000;
+            --verde-estado: #00ff00;
+            --amarillo-estado: #ffcc00;
+            --azul-estado: #0066ff;
+        }
         body { margin: 0; background: var(--fondo); color: #fff; font-family: 'Arial Black', sans-serif; text-transform: uppercase; overflow: hidden; }
         .slide { display: none; height: 100vh; padding: 20px; box-sizing: border-box; flex-direction: column; }
         .active { display: flex; }
@@ -14,17 +23,26 @@
         .grid { display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr); gap: 15px; flex-grow: 1; }
         .card { background: var(--gris); border-radius: 20px; padding: 20px; border: 2px solid var(--acento); display: flex; flex-direction: column; position: relative; }
         
-        .cancha-n { position: absolute; top: 10px; left: 20px; font-size: 20px; color: var(--primario); }
-        .instancia { position: absolute; top: 10px; right: 20px; font-size: 18px; color: #888; }
-        .equipo { font-size: 28px; line-height: 1.1; margin: 10px 0; min-height: 65px; display: flex; align-items: center; }
-        .vs { font-size: 14px; color: var(--primario); text-align: center; width: 100%; margin: 2px 0; }
-        .footer-card { margin-top: auto; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--acento); padding-top: 10px; }
-        .cat { font-size: 18px; color: var(--primario); }
+        .cancha-n { position: absolute; top: 10px; left: 20px; font-size: 22px; color: var(--primario); }
+        .instancia { position: absolute; top: 10px; right: 20px; font-size: 20px; color: #888; }
         
-        /* Estilo para el estado de la Columna F */
-        .estado-txt { font-size: 16px; font-weight: bold; color: #fff; background: #222; padding: 4px 12px; border-radius: 5px; border: 1px solid var(--acento); }
+        /* CONTENEDOR DE JUGADORES */
+        .pareja-cont { display: flex; flex-direction: column; justify-content: center; min-height: 80px; margin: 5px 0; }
+        .jugador { font-size: 30px; line-height: 1; font-weight: 900; }
+        .llego { color: var(--primario); } /* Color cuando llegó */
+        .no-llego { color: #fff; } /* Color cuando no llegó */
+        
+        .vs { font-size: 16px; color: var(--primario); text-align: center; width: 100%; margin: 5px 0; font-weight: bold; }
+        
+        .footer-card { margin-top: auto; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--acento); padding-top: 10px; }
+        .cat { font-size: 22px; color: var(--primario); }
+        .estado-txt { font-size: 18px; font-weight: bold; padding: 5px 15px; border-radius: 8px; text-align: center; min-width: 120px; }
 
-        /* Animación para LLAMANDO */
+        .est-enjuego { background-color: var(--verde-estado); color: #000; }
+        .est-finalizado { background-color: var(--amarillo-estado); color: #000; }
+        .est-proximo { background-color: var(--azul-estado); color: #fff; }
+        .est-normal { background: #222; color: #fff; border: 1px solid var(--acento); }
+
         .llamando { animation: flash 1s infinite; border: 4px solid var(--rojo) !important; }
         @keyframes flash { 0%, 100% { background: var(--gris); } 50% { background: #500; } }
     </style>
@@ -61,25 +79,45 @@
                     if (!r || !r[1] || r[1].trim() === "") return `<div class="card" style="opacity:0.2"></div>`;
                     
                     const cancha = r[0];    // A
-                    const p1 = r[1];        // B
-                    const p2 = r[2];        // C
+                    const p1_nombres = (r[1] || "").split('/'); // B
+                    const p2_nombres = (r[2] || "").split('/'); // C
                     const cat = r[3];       // D
                     const ins = r[4];       // E
-                    const est = (r[5] || "").toUpperCase(); // F
+                    const estRaw = (r[5] || "").toUpperCase().trim(); // F
+                    
+                    // Chequeo de llegada (Columnas H, I, J, K)
+                    const j1_p1_llego = r[7] ? 'llego' : 'no-llego'; // H
+                    const j2_p1_llego = r[8] ? 'llego' : 'no-llego'; // I
+                    const j1_p2_llego = r[9] ? 'llego' : 'no-llego'; // J
+                    const j2_p2_llego = r[10] ? 'llego' : 'no-llego'; // K
 
-                    // Si el estado en Col F contiene "LLAMANDO", activamos la clase animada
-                    const esLlamando = est.includes("LLAMANDO") ? "llamando" : "";
+                    let claseEstado = "est-normal";
+                    let claseAlerta = "";
+                    if (estRaw.includes("LLAMANDO")) { claseAlerta = "llamando"; }
+                    else if (estRaw.includes("EN JUEGO")) { claseEstado = "est-enjuego"; }
+                    else if (estRaw.includes("FINALIZADO")) { claseEstado = "est-finalizado"; }
+                    else if (estRaw.includes("PROXIMO") || estRaw.includes("PRÓXIMO")) { claseEstado = "est-proximo"; }
 
                     return `
-                        <div class="card ${esLlamando}">
+                        <div class="card ${claseAlerta}">
                             <div class="cancha-n">CANCHA ${cancha}</div>
                             <div class="instancia">${ins}</div>
-                            <div class="equipo" style="margin-top:20px">${p1}</div>
+                            
+                            <div class="pareja-cont" style="margin-top:30px">
+                                <div class="jugador ${j1_p1_llego}">${p1_nombres[0] || ""}</div>
+                                <div class="jugador ${j2_p1_llego}">${p1_nombres[1] || ""}</div>
+                            </div>
+                            
                             <div class="vs">V S</div>
-                            <div class="equipo">${p2}</div>
+                            
+                            <div class="pareja-cont">
+                                <div class="jugador ${j1_p2_llego}">${p2_nombres[0] || ""}</div>
+                                <div class="jugador ${j2_p2_llego}">${p2_nombres[1] || ""}</div>
+                            </div>
+
                             <div class="footer-card">
                                 <div class="cat">${cat}</div>
-                                <div class="estado-txt">${est}</div>
+                                <div class="estado-txt ${claseEstado}">${estRaw}</div>
                             </div>
                         </div>`;
                 };
@@ -89,7 +127,7 @@
                 document.getElementById('g3').innerHTML = crearCard(rows[8])+crearCard(rows[9])+crearCard(rows[10])+crearCard(rows[11]);
                 document.getElementById('g4').innerHTML = crearCard(rows[12])+crearCard(rows[13])+crearCard(rows[14])+crearCard(rows[15]);
 
-            } catch(e) { console.log("Error de red..."); }
+            } catch(e) { console.log("Error..."); }
         }
 
         setInterval(() => {
