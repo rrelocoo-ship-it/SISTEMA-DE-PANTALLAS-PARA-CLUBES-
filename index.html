@@ -31,9 +31,14 @@
         <div class="slide"><div class="header" id="h4"></div><div class="grid" id="g4"></div></div>
     </div>
     <script>
+        // CONFIGURACIÓN
         const ID = "1hgPIXVfeNvvNfY6h204cJFqeTxGm66dohcjmNRvhef8";
-        const GID = "0";
-       const hHTML = `<div class="logos-container"><div class="logo-wpe">CIRCUITO WPE</div><div class="logo-separador"></div><div class="logo-club">GRAN WILLY<br><span style="color:#666; font-size:16px">PADEL CLUB</span></div></div><div class="reloj">00:00</div>`;
+        const GID = "0"; // Corregido a 0 para tu pestaña principal
+        
+        // Texto del encabezado corregido
+        const hHTML = `<div class="logos-container"><div class="logo-wpe">CIRCUITO WPE</div><div class="logo-separador"></div><div class="logo-club">GRAN WILLY<br><span style="color:#666; font-size:16px">PADEL CLUB</span></div></div><div class="reloj">00:00</div>`;
+        document.querySelectorAll('.header').forEach(h => h.innerHTML = hHTML);
+
         let cur = 0;
         setInterval(() => {
             const ss = document.querySelectorAll('.slide');
@@ -44,29 +49,31 @@
 
         async function load() {
             try {
-                const res = await fetch(`https://docs.google.com/spreadsheets/d/${ID}/gviz/tq?tqx=out:csv&gid=${GID}`);
+                const res = await fetch(`https://docs.google.com/spreadsheets/d/${ID}/gviz/tq?tqx=out:csv&gid=${GID}&t=${Date.now()}`);
                 const text = await res.text();
+                // Limpieza de comillas del CSV
                 const rows = text.split('\n').slice(1).map(r => r.split('","').map(c => c.replace(/"/g, '')));
                 
                 const card = (r) => `<div class="card"><div class="tag-excel">${r[0]||'---'}</div><div class="jug">${r[1]||'---'}</div><div class="cat">${r[3]||''}</div></div>`;
                 const aviso = (r) => `<div class="card aviso"><div class="tag-excel" style="color:#000">${r[0]||'AVISO'}</div><div class="aviso-txt">${r[1]||'FAVOR DE PRESENTARSE EN LA MESA DEL STAFF'}</div></div>`;
 
-                // Pantalla 1 y 2 (Filas 2 a 9 del Excel)
+                // Pantalla 1 y 2 (Filas 1 a 8 del Excel)
                 document.getElementById('g1').innerHTML = card(rows[0])+card(rows[1])+card(rows[2])+card(rows[3]);
                 document.getElementById('g2').innerHTML = card(rows[4])+card(rows[5])+card(rows[6])+aviso(rows[7]);
 
-                // Pantalla 3 y 4 (Filas 10 a 17 del Excel)
+                // Pantalla 3 y 4 (Filas 9 a 16 del Excel)
                 const p = rows.slice(8);
                 document.getElementById('g3').innerHTML = card(p[0])+card(p[1])+card(p[2])+card(p[3]);
                 document.getElementById('g4').innerHTML = card(p[4])+card(p[5])+card(p[6])+aviso(p[7]);
-            } catch(e) { console.log("Error"); }
+            } catch(e) { console.log("Error cargando datos"); }
         }
 
         setInterval(() => {
             const t = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
             document.querySelectorAll('.reloj').forEach(r => r.innerText = t);
         }, 1000);
-        setInterval(load, 20000);
+        
+        setInterval(load, 20000); // Actualiza datos cada 20 segundos
         load();
     </script>
 </body>
