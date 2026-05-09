@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WPE MATCHVIEW ULTRA - GRAN WILLY</title>
+    <title>WPE MATCHVIEW MAX - GRAN WILLY</title>
     <style>
         :root { 
             --primario: #ccff00; 
@@ -17,70 +17,69 @@
         }
         body { margin: 0; background: var(--fondo); color: #fff; font-family: 'Arial Black', sans-serif; text-transform: uppercase; overflow: hidden; height: 100vh; }
         
-        #app { height: 100%; }
-        .slide { display: none; height: 100vh; padding: 15px; box-sizing: border-box; flex-direction: column; }
+        .slide { display: none; height: 100vh; padding: 10px; box-sizing: border-box; flex-direction: column; }
         .active { display: flex; }
         
-        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 5px solid var(--primario); padding-bottom: 10px; margin-bottom: 10px; }
-        .logo-wpe { font-size: 35px; color: var(--primario); font-weight: 900; }
-        .reloj { font-size: 40px; }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid var(--primario); padding-bottom: 5px; margin-bottom: 5px; }
+        .logo-wpe { font-size: 30px; color: var(--primario); font-weight: 900; }
+        .reloj { font-size: 35px; }
         
-        .grid { display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr); gap: 15px; flex-grow: 1; }
+        .grid { display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr); gap: 10px; flex-grow: 1; }
         
-        .card { background: var(--gris); border-radius: 20px; padding: 15px; border: 2px solid var(--acento); display: flex; flex-direction: column; position: relative; align-items: center; justify-content: center; text-align: center; overflow: hidden; }
+        .card { background: var(--gris); border-radius: 15px; padding: 5px; border: 2px solid var(--acento); display: flex; flex-direction: column; position: relative; align-items: center; justify-content: center; text-align: center; overflow: hidden; }
         
-        .cancha-n { position: absolute; top: 8px; left: 15px; font-size: 24px; color: var(--primario); font-weight: 900; }
-        .instancia { position: absolute; top: 8px; right: 15px; font-size: 22px; color: #666; }
+        .cancha-n { position: absolute; top: 5px; left: 10px; font-size: 24px; color: var(--primario); font-weight: 900; z-index: 10; background: rgba(0,0,0,0.5); padding: 0 5px; }
+        .instancia { position: absolute; top: 5px; right: 10px; font-size: 20px; color: #555; z-index: 10; }
         
-        /* JUGADORES GIGANTES */
-        .pareja-cont { width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 110px; }
-        .jugador { font-size: 60px; line-height: 0.85; font-weight: 900; letter-spacing: -3px; width: 100%; white-space: nowrap; }
-        .llego { color: var(--primario); text-shadow: 0 0 10px rgba(204, 255, 0, 0.4); } 
+        /* JUGADORES TAMAÑO MASIVO */
+        .pareja-cont { width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; margin: -10px 0; }
+        .jugador { font-size: 85px; line-height: 0.78; font-weight: 900; letter-spacing: -5px; width: 100%; white-space: nowrap; }
+        .llego { color: var(--primario); } 
         .no-llego { color: #fff; } 
         
-        .vs { font-size: 18px; color: var(--primario); margin: 5px 0; font-weight: bold; background: #000; padding: 2px 12px; border-radius: 5px; z-index: 2; border: 1px solid var(--acento); }
+        /* VS LIMPIO SIN RECUADRO */
+        .vs { font-size: 20px; color: var(--primario); font-weight: bold; text-shadow: 0 2px 4px rgba(0,0,0,0.8); z-index: 5; margin: -5px 0; }
         
-        .footer-card { width: 100%; margin-top: auto; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--acento); padding-top: 8px; }
+        /* PIE DE TARJETA */
+        .footer-card { width: 100%; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--acento); padding: 5px 10px; background: rgba(0,0,0,0.3); }
         .cat { font-size: 24px; color: var(--primario); font-weight: 900; }
-        .estado-txt { font-size: 20px; font-weight: bold; padding: 5px 15px; border-radius: 8px; min-width: 140px; }
+        .estado-txt { font-size: 22px; font-weight: bold; padding: 4px 12px; border-radius: 6px; min-width: 130px; }
 
         .est-enjuego { background-color: var(--verde-estado); color: #000; }
         .est-finalizado { background-color: var(--amarillo-estado); color: #000; }
         .est-proximo { background-color: var(--azul-estado); color: #fff; }
         .est-normal { background: #222; color: #fff; border: 1px solid var(--acento); }
 
-        .llamando { animation: flash 1s infinite; border: 5px solid var(--rojo) !important; }
-        @keyframes flash { 0%, 100% { background: var(--gris); } 50% { background: #600; } }
+        .llamando { animation: flash 1s infinite; border: 6px solid var(--rojo) !important; }
+        @keyframes flash { 0%, 100% { background: var(--gris); } 50% { background: #700; } }
 
-        /* AVISO GENERAL */
-        .aviso-card { background: #1a1a1a; border: 4px solid var(--primario); }
-        .aviso-header { font-size: 32px; color: var(--primario); font-weight: 900; text-decoration: underline; margin-bottom: 15px; }
-        .aviso-body { font-size: 50px; line-height: 1; color: #fff; font-weight: 900; letter-spacing: -2px; }
+        /* AVISO GENERAL MAXIMIZADO */
+        .aviso-card { background: #111; border: 4px solid var(--primario); }
+        .aviso-header { font-size: 40px; color: var(--primario); font-weight: 900; margin-bottom: 10px; }
+        .aviso-body { font-size: 70px; line-height: 0.9; color: #fff; font-weight: 900; letter-spacing: -3px; }
     </style>
 </head>
 <body>
     <div id="app">
         <div class="slide active"><div class="header"></div><div class="grid" id="g1"></div></div>
         <div class="slide"><div class="header"></div><div class="grid" id="g2"></div></div>
-        <div class="slide"><div class="header"></div><div class="grid" id="g3"></div></div>
-        <div class="slide"><div class="header"></div><div class="grid" id="g4"></div></div>
+        <div class="slide"><div class="header" id="h3"></div><div class="grid" id="g3"></div></div>
+        <div class="slide"><div class="header" id="h4"></div><div class="grid" id="g4"></div></div>
     </div>
 
     <script>
         const ID = "1hgPIXVfeNvvNfY6h204cJFqeTxGm66dohcjmNRvhef8";
         const GID = "232783951"; 
         const hHTML = `<div class="logo-wpe">CIRCUITO WPE - GRAN WILLY</div><div class="reloj">00:00</div>`;
-        
         document.querySelectorAll('.header').forEach(h => h.innerHTML = hHTML);
 
         let cur = 0;
-        function rotate() {
+        setInterval(() => {
             const ss = document.querySelectorAll('.slide');
             ss.forEach(s => s.classList.remove('active'));
             cur = (cur + 1) % 4;
             if(ss[cur]) ss[cur].classList.add('active');
-        }
-        setInterval(rotate, 10000);
+        }, 10000);
 
         async function load() {
             try {
@@ -90,8 +89,7 @@
                 const rows = text.split('\n').slice(1).map(r => r.split('","').map(c => c.replace(/"/g, '')));
 
                 const crearCard = (r, index) => {
-                    if (!r || !r[1] || r[1].trim() === "") return `<div class="card" style="opacity:0.1"></div>`;
-                    
+                    if (!r || !r[1] || r[1].trim() === "") return `<div class="card" style="opacity:0.05"></div>`;
                     const estRaw = (r[5] || "").toUpperCase().trim();
 
                     if (index === 7) { 
@@ -108,7 +106,6 @@
                     const p2 = (r[2] || "").split('/');
                     const cat = r[3] || "";
                     const ins = r[4] || "";
-                    
                     const j1p1 = r[7] ? 'llego' : 'no-llego'; 
                     const j2p1 = r[8] ? 'llego' : 'no-llego'; 
                     const j1p2 = r[9] ? 'llego' : 'no-llego'; 
@@ -125,7 +122,7 @@
                         <div class="card ${alClass}">
                             <div class="cancha-n">C${cancha}</div>
                             <div class="instancia">${ins}</div>
-                            <div class="pareja-cont" style="margin-top:20px">
+                            <div class="pareja-cont">
                                 <div class="jugador ${j1p1}">${p1[0] || ""}</div>
                                 <div class="jugador ${j2p1}">${p1[1] || ""}</div>
                             </div>
@@ -141,19 +138,21 @@
                         </div>`;
                 };
 
-                document.getElementById('g1').innerHTML = [0,1,2,3].map(i => crearCard(rows[i], i)).join('');
-                document.getElementById('g2').innerHTML = [4,5,6,7].map(i => crearCard(rows[i], i)).join('');
-                document.getElementById('g3').innerHTML = [8,9,10,11].map(i => crearCard(rows[i], i)).join('');
-                document.getElementById('g4').innerHTML = [12,13,14,15].map(i => crearCard(rows[i], i)).join('');
+                for(let i=0; i<4; i++){
+                    const start = i*4;
+                    const gridId = `g${i+1}`;
+                    if(document.getElementById(gridId)){
+                        document.getElementById(gridId).innerHTML = [0,1,2,3].map(j => crearCard(rows[start+j], start+j)).join('');
+                    }
+                }
 
-            } catch(e) { console.error("Error cargando datos"); }
+            } catch(e) { console.error("Update Error"); }
         }
 
         setInterval(() => {
             const t = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
             document.querySelectorAll('.reloj').forEach(r => r.innerText = t);
         }, 1000);
-        
         setInterval(load, 15000);
         load();
     </script>
