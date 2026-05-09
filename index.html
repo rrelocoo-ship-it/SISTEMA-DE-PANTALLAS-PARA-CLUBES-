@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>MATCHVIEW PRO - CIRCUITO WPE</title>
+    <title>WPE MATCHVIEW PRO - GRAN WILLY</title>
     <style>
         :root { 
             --primario: #ccff00; 
@@ -23,28 +23,37 @@
         .grid { display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr); gap: 15px; flex-grow: 1; }
         .card { background: var(--gris); border-radius: 20px; padding: 20px; border: 2px solid var(--acento); display: flex; flex-direction: column; position: relative; }
         
-        .cancha-n { position: absolute; top: 10px; left: 20px; font-size: 22px; color: var(--primario); }
-        .instancia { position: absolute; top: 10px; right: 20px; font-size: 20px; color: #888; }
+        /* Cabecera de Tarjeta */
+        .cancha-n { position: absolute; top: 10px; left: 20px; font-size: 24px; color: var(--primario); font-weight: 900; }
+        .instancia { position: absolute; top: 10px; right: 20px; font-size: 22px; color: #888; }
         
-        /* CONTENEDOR DE JUGADORES */
-        .pareja-cont { display: flex; flex-direction: column; justify-content: center; min-height: 80px; margin: 5px 0; }
-        .jugador { font-size: 30px; line-height: 1; font-weight: 900; }
-        .llego { color: var(--primario); } /* Color cuando llegó */
-        .no-llego { color: #fff; } /* Color cuando no llegó */
+        /* JUGADORES GIGANTES Y VISTOSOS */
+        .pareja-cont { display: flex; flex-direction: column; justify-content: center; min-height: 100px; margin: 0; }
+        .jugador { font-size: 45px; line-height: 0.95; font-weight: 900; letter-spacing: -2px; }
+        .llego { color: var(--primario); } 
+        .no-llego { color: #fff; } 
         
-        .vs { font-size: 16px; color: var(--primario); text-align: center; width: 100%; margin: 5px 0; font-weight: bold; }
+        .vs { font-size: 18px; color: var(--primario); text-align: center; width: 100%; margin: 5px 0; font-weight: bold; }
         
+        /* Pie de Tarjeta */
         .footer-card { margin-top: auto; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--acento); padding-top: 10px; }
-        .cat { font-size: 22px; color: var(--primario); }
-        .estado-txt { font-size: 18px; font-weight: bold; padding: 5px 15px; border-radius: 8px; text-align: center; min-width: 120px; }
+        .cat { font-size: 24px; color: var(--primario); }
+        .estado-txt { font-size: 20px; font-weight: bold; padding: 6px 18px; border-radius: 8px; text-align: center; min-width: 140px; }
 
+        /* Estilos de Estado (Semáforo) */
         .est-enjuego { background-color: var(--verde-estado); color: #000; }
         .est-finalizado { background-color: var(--amarillo-estado); color: #000; }
         .est-proximo { background-color: var(--azul-estado); color: #fff; }
         .est-normal { background: #222; color: #fff; border: 1px solid var(--acento); }
 
+        /* Alerta LLAMANDO */
         .llamando { animation: flash 1s infinite; border: 4px solid var(--rojo) !important; }
         @keyframes flash { 0%, 100% { background: var(--gris); } 50% { background: #500; } }
+
+        /* ESTILOS ESPECIALES PARA EL TABLÓN DE ANUNCIOS */
+        .aviso-card { background: #1a1a1a; border: 3px solid var(--primario); justify-content: center; align-items: center; text-align: center; }
+        .aviso-header { font-size: 28px; color: var(--primario); font-weight: 900; text-decoration: underline; margin-bottom: 20px; }
+        .aviso-body { font-size: 38px; line-height: 1.1; color: #fff; font-weight: 900; padding: 0 10px; }
     </style>
 </head>
 <body>
@@ -67,7 +76,7 @@
             ss.forEach(s => s.classList.remove('active'));
             cur = (cur + 1) % 4;
             ss[cur].classList.add('active');
-        }, 10000);
+        }, 10000); // Rota cada 10 seg
 
         async function load() {
             try {
@@ -75,17 +84,32 @@
                 const text = await res.text();
                 const rows = text.split('\n').slice(1).map(r => r.split('","').map(c => c.replace(/"/g, '')));
 
-                const crearCard = (r) => {
-                    if (!r || !r[1] || r[1].trim() === "") return `<div class="card" style="opacity:0.2"></div>`;
+                const crearCard = (r, index) => {
+                    // Si la fila está vacía, tarjeta transparente
+                    if (!r || !r[1] || r[1].trim() === "") return `<div class="card" style="opacity:0.1"></div>`;
                     
+                    const estRaw = (r[5] || "").toUpperCase().trim(); // Col F
+
+                    // LÓGICA ESPECIAL PARA LA FILA 8 (ANUNCIO GENERAL)
+                    if (index === 7) { 
+                        let claseAlertaAviso = "";
+                        if (estRaw.includes("LLAMANDO")) { claseAlertaAviso = "llamando"; }
+                        
+                        return `
+                            <div class="card aviso-card ${claseAlertaAviso}">
+                                <div class="aviso-header">${r[1] || "AVISO GENERAL"}</div>
+                                <div class="aviso-body">${r[2] || "MESA DE CONTROL"}</div>
+                                <div style="position:absolute; bottom:10px; right:20px; font-size:14px; color:#555">WPE STAFF</div>
+                            </div>`;
+                    }
+
+                    // LÓGICA NORMAL PARA PARTIDOS
                     const cancha = r[0];    // A
                     const p1_nombres = (r[1] || "").split('/'); // B
                     const p2_nombres = (r[2] || "").split('/'); // C
                     const cat = r[3];       // D
                     const ins = r[4];       // E
-                    const estRaw = (r[5] || "").toUpperCase().trim(); // F
                     
-                    // Chequeo de llegada (Columnas H, I, J, K)
                     const j1_p1_llego = r[7] ? 'llego' : 'no-llego'; // H
                     const j2_p1_llego = r[8] ? 'llego' : 'no-llego'; // I
                     const j1_p2_llego = r[9] ? 'llego' : 'no-llego'; // J
@@ -103,7 +127,7 @@
                             <div class="cancha-n">CANCHA ${cancha}</div>
                             <div class="instancia">${ins}</div>
                             
-                            <div class="pareja-cont" style="margin-top:30px">
+                            <div class="pareja-cont" style="margin-top:35px">
                                 <div class="jugador ${j1_p1_llego}">${p1_nombres[0] || ""}</div>
                                 <div class="jugador ${j2_p1_llego}">${p1_nombres[1] || ""}</div>
                             </div>
@@ -122,12 +146,13 @@
                         </div>`;
                 };
 
-                document.getElementById('g1').innerHTML = crearCard(rows[0])+crearCard(rows[1])+crearCard(rows[2])+crearCard(rows[3]);
-                document.getElementById('g2').innerHTML = crearCard(rows[4])+crearCard(rows[5])+crearCard(rows[6])+crearCard(rows[7]);
-                document.getElementById('g3').innerHTML = crearCard(rows[8])+crearCard(rows[9])+crearCard(rows[10])+crearCard(rows[11]);
-                document.getElementById('g4').innerHTML = crearCard(rows[12])+crearCard(rows[13])+crearCard(rows[14])+crearCard(rows[15]);
+                // Asignación a Grillas
+                document.getElementById('g1').innerHTML = crearCard(rows[0],0)+crearCard(rows[1],1)+crearCard(rows[2],2)+crearCard(rows[3],3);
+                document.getElementById('g2').innerHTML = crearCard(rows[4],4)+crearCard(rows[5],5)+crearCard(rows[6],6)+crearCard(rows[7],7); // Fila 8 es Anuncio
+                document.getElementById('g3').innerHTML = crearCard(rows[8],8)+crearCard(rows[9],9)+crearCard(rows[10],10)+crearCard(rows[11],11);
+                document.getElementById('g4').innerHTML = crearCard(rows[12],12)+crearCard(rows[13],13)+crearCard(rows[14],14)+crearCard(rows[15],15);
 
-            } catch(e) { console.log("Error..."); }
+            } catch(e) { console.log("Error de red..."); }
         }
 
         setInterval(() => {
