@@ -2,36 +2,31 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>MATCHVIEW PRO - WPE</title>
+    <title>MATCHVIEW PRO - CIRCUITO WPE</title>
     <style>
         :root { --primario: #ccff00; --fondo: #000; --gris: #111; --acento: #333; --rojo: #ff0000; }
         body { margin: 0; background: var(--fondo); color: #fff; font-family: 'Arial Black', sans-serif; text-transform: uppercase; overflow: hidden; }
         .slide { display: none; height: 100vh; padding: 20px; box-sizing: border-box; flex-direction: column; }
         .active { display: flex; }
         .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 5px solid var(--primario); padding-bottom: 15px; margin-bottom: 15px; }
-        .logos-container { display: flex; align-items: center; gap: 20px; }
         .logo-wpe { font-size: 38px; color: var(--primario); font-weight: 900; }
-        .logo-club { font-size: 24px; color: #fff; line-height: 1; }
         .reloj { font-size: 40px; }
         .grid { display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr); gap: 15px; flex-grow: 1; }
-        .card { background: var(--gris); border-radius: 20px; padding: 20px; border: 2px solid var(--acento); display: flex; flex-direction: column; position: relative; transition: all 0.5s; }
+        .card { background: var(--gris); border-radius: 20px; padding: 20px; border: 2px solid var(--acento); display: flex; flex-direction: column; position: relative; }
         
-        /* Estilos de información */
         .cancha-n { position: absolute; top: 10px; left: 20px; font-size: 20px; color: var(--primario); }
         .instancia { position: absolute; top: 10px; right: 20px; font-size: 18px; color: #888; }
-        .equipo { font-size: 28px; line-height: 1.2; margin: 10px 0; }
-        .vs { font-size: 16px; color: var(--primario); margin: 5px 0; text-align: center; }
-        .footer-card { margin-top: auto; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--acento); pt: 10px; }
+        .equipo { font-size: 28px; line-height: 1.1; margin: 10px 0; min-height: 65px; display: flex; align-items: center; }
+        .vs { font-size: 14px; color: var(--primario); text-align: center; width: 100%; margin: 2px 0; }
+        .footer-card { margin-top: auto; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--acento); padding-top: 10px; }
         .cat { font-size: 18px; color: var(--primario); }
-        .timer { font-size: 18px; color: #fff; background: #222; padding: 2px 8px; border-radius: 5px; }
-        .estado-jug { font-size: 14px; color: #000; background: var(--primario); padding: 2px 5px; border-radius: 3px; font-weight: bold; }
+        
+        /* Estilo para el estado de la Columna F */
+        .estado-txt { font-size: 16px; font-weight: bold; color: #fff; background: #222; padding: 4px 12px; border-radius: 5px; border: 1px solid var(--acento); }
 
-        /* Efecto LLAMANDO */
+        /* Animación para LLAMANDO */
         .llamando { animation: flash 1s infinite; border: 4px solid var(--rojo) !important; }
-        @keyframes flash { 0% { background: var(--gris); } 50% { background: #400; } 100% { background: var(--gris); } }
-
-        .aviso { background: var(--primario); color: #000; justify-content: center; align-items: center; text-align: center; border: none; }
-        .aviso-txt { font-size: 35px; font-weight: 900; }
+        @keyframes flash { 0%, 100% { background: var(--gris); } 50% { background: #500; } }
     </style>
 </head>
 <body>
@@ -44,8 +39,8 @@
 
     <script>
         const ID = "1hgPIXVfeNvvNfY6h204cJFqeTxGm66dohcjmNRvhef8";
-        const GID = "232783951"; // Usando el GID que me pasaste
-        const hHTML = `<div class="logos-container"><div class="logo-wpe">CIRCUITO WPE</div><div class="logo-club">GRAN WILLY</div></div><div class="reloj">00:00</div>`;
+        const GID = "232783951"; 
+        const hHTML = `<div class="logo-wpe">CIRCUITO WPE - GRAN WILLY</div><div class="reloj">00:00</div>`;
         document.querySelectorAll('.header').forEach(h => h.innerHTML = hHTML);
 
         let cur = 0;
@@ -60,45 +55,41 @@
             try {
                 const res = await fetch(`https://docs.google.com/spreadsheets/d/${ID}/gviz/tq?tqx=out:csv&gid=${GID}&t=${Date.now()}`);
                 const text = await res.text();
-                // Separamos por filas y luego por comas limpiando comillas
                 const rows = text.split('\n').slice(1).map(r => r.split('","').map(c => c.replace(/"/g, '')));
 
                 const crearCard = (r) => {
-                    if (!r || !r[1]) return `<div class="card" style="opacity:0.3"></div>`;
+                    if (!r || !r[1] || r[1].trim() === "") return `<div class="card" style="opacity:0.2"></div>`;
                     
-                    const cancha = r[0] || "-";
-                    const pareja1 = r[1] || "---";
-                    const pareja2 = r[2] || "---";
-                    const cat = r[3] || "";
-                    const estado = (r[4] || "").toUpperCase();
-                    const instancia = r[5] || ""; // Asumiendo columna F
-                    const timer = r[6] || "";     // Asumiendo columna G
-                    const llego = r[7] || "";      // Asumiendo columna H
+                    const cancha = r[0];    // A
+                    const p1 = r[1];        // B
+                    const p2 = r[2];        // C
+                    const cat = r[3];       // D
+                    const ins = r[4];       // E
+                    const est = (r[5] || "").toUpperCase(); // F
 
-                    const esLlamando = estado.includes("LLAMANDO") ? "llamando" : "";
-                    const tagLlego = llego ? `<span class="estado-jug">LLEGÓ</span>` : "";
+                    // Si el estado en Col F contiene "LLAMANDO", activamos la clase animada
+                    const esLlamando = est.includes("LLAMANDO") ? "llamando" : "";
 
                     return `
                         <div class="card ${esLlamando}">
                             <div class="cancha-n">CANCHA ${cancha}</div>
-                            <div class="instancia">${instancia}</div>
-                            <div class="equipo" style="margin-top:35px">${pareja1}</div>
-                            <div class="vs">VS</div>
-                            <div class="equipo">${pareja2}</div>
+                            <div class="instancia">${ins}</div>
+                            <div class="equipo" style="margin-top:20px">${p1}</div>
+                            <div class="vs">V S</div>
+                            <div class="equipo">${p2}</div>
                             <div class="footer-card">
-                                <div class="cat">${cat} ${tagLlego}</div>
-                                <div class="timer">${timer}</div>
+                                <div class="cat">${cat}</div>
+                                <div class="estado-txt">${est}</div>
                             </div>
                         </div>`;
                 };
 
-                // Lógica de pantallas
                 document.getElementById('g1').innerHTML = crearCard(rows[0])+crearCard(rows[1])+crearCard(rows[2])+crearCard(rows[3]);
                 document.getElementById('g2').innerHTML = crearCard(rows[4])+crearCard(rows[5])+crearCard(rows[6])+crearCard(rows[7]);
                 document.getElementById('g3').innerHTML = crearCard(rows[8])+crearCard(rows[9])+crearCard(rows[10])+crearCard(rows[11]);
                 document.getElementById('g4').innerHTML = crearCard(rows[12])+crearCard(rows[13])+crearCard(rows[14])+crearCard(rows[15]);
 
-            } catch(e) { console.log("Error"); }
+            } catch(e) { console.log("Error de red..."); }
         }
 
         setInterval(() => {
